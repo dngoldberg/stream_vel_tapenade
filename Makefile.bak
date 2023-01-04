@@ -1,0 +1,19 @@
+#FC = gfortran -g -fbounds-check -Wuninitialized -O -fimplicit-none -fno-automatic -fdefault-double-8 -fdefault-real-8 -finit-real=zero
+FC = gfortran
+#all: stream_vel.x stream_vel_ad.x stream_vel_dan.x
+all: stream_vel_dan.x
+
+%.o:%.f90
+	$(FC) -c $< -o $@
+
+#stream_vel.x:  stream_vel.o driver.o
+#	$(FC)  -o $@ $^ 
+
+#stream_vel_ad.x:  stream_vel_ad.o driver_ad.o
+#	$(FC)  -o $@ $^ 
+
+stream_vel_dan.x:  stream_vel_dan_b.o driver.o
+	$(FC)  -o $@ $^ 
+
+clean:
+	rm -Rf *.o *.mod *.x 
