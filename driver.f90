@@ -1,6 +1,6 @@
 program driver_all
 
-use stream_vel_variables_diff
+use stream_vel_variables
 implicit none
 
 real(8), dimension(n) :: bb, g_bb, adbb, bb0
@@ -28,10 +28,10 @@ integer :: ii
         do ii=1,n
          bb = bb0
          bb(ii) = bb(ii) + ep
-         call stream_vel_nodiff( u, bb, fc_pert1 )
+         call stream_vel( u, bb, fc_pert1 )
          bb = bb0
          bb(ii) = bb(ii) - ep
-         call stream_vel_nodiff( u, bb, fc_pert2 )
+         call stream_vel( u, bb, fc_pert2 )
          fdfc = (fc_pert1-fc_pert2)/(2*ep)
          print *,ii,1-adbb(ii)/fdfc
         enddo

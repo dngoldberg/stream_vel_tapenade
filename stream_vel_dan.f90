@@ -62,7 +62,8 @@
 
         real(8), dimension(n,3) :: A
         real(8), dimension(n) :: f, beta_fric, h, beta_0, h0, utmp, b, nu
-        real(8) :: fend
+        real(8), dimension(n+1) :: uold
+        real(8) :: fend, maxdiff
         integer :: i,j
         
         call stream_vel_init (h0, beta_0)
@@ -84,20 +85,28 @@
         
         b(n) = b(n) + fend
 
+        sumdiff = 1e10 
+        uold = u
 !-----------------------------------
-
-        do i=1, n_nl
+!        do i=1, n_nl
+!$AD FP-LOOP "u" %Accuracy 8.0e6
+        do while (sumdiff .gt. 1.e-14)
+         uold= u
          call stream_vel_visc (h, u, nu)                 ! update viscosities
               
          call stream_assemble (nu, beta_fric, A)         ! assemble tridiag matrix
                                                          ! this represents discretization of
                                                          !  (nu^(i-1) u^(i)_x)_x - \beta^2 u^(i) = f
-
-         utmp = 0.
+         utmp=0
          call conj_grad (utmp, b, A)                     ! solve linear system for new u
 
          do j=1,n
           u(j+1) = utmp(j)                               ! effectively apply boundary condition u(1)==0
+         enddo
+         sumdiff=0.
+         do j=1,n
+!          u(j+1) = utmp(j)                ! effectively apply boundary condition u(1)==0
+          sumdiff = sumdiff + (u(j+1)-uold(j+1))**2
          enddo
         enddo
 
@@ -185,99 +194,3 @@
                 
         end subroutine stream_assemble
 
-!-----------------------------
-        subroutine conj_grad (x, b, A)
-!-----------------------------
-
-!       THIS IS THE LINEAR SYSTEM SOLVER
-
-        use stream_vel_variables
-
-        real(8), intent(inout), dimension(n) :: x
-        real(8), intent(in), dimension(n) :: b
-        real(8), intent(in), dimension(n,3) :: A
-        
-        real(8) :: alpha, beta, dp1, dp2, res_init, resid
-        integer :: i, ii, k_iter
-
-        r(:) = 0.
-        r_old(:) = 0.
-        p(:) = 0.
-        p_old(:) = 0.
-        k_iter = 0
-        x(:) = 0.
-
-        ! r_0 = b - A(x_0)
-        do i=1,n
-         r(i) = b(i) - A(i,2) * x(i)
-         if (i.gt.1) then
-          r(i) = r(i) - A(i,1) * x(i-1)
-         endif
-         if (i.lt.n) then
-          r(i) = r(i) - A(i,3) * x(i+1)
-         endif
-        enddo
-
-        dp1 = 0.
-        do i=1,n
-         dp1 = dp1 + r(i)*r(i)
-        enddo
-        res_init = sqrt (dp1)
-        resid = res_init
-
-        p(:) = r(:)
-
-        do ii=1,200*n
-
-        if (resid.gt. 1e-10*res_init) then
-
-         k_iter = k_iter + 1
-
-         ! A(p_ii)
-         do i=1,n
-          ax(i) = A(i,2) * p(i)
-          if (i.gt.1) then
-           ax(i) = ax(i) + A(i,1) * p(i-1)
-          endif
-          if (i.lt.n) then
-           ax(i) = ax(i) + A(i,3) * p(i+1)
-          endif
-         enddo
-
-         ! alpha_ii = r'r / p'Ap
-         dp1 = 0.
-         dp2 = 0.
-         do i=1,n
-          dp1 = dp1 + r(i)*r(i)
-          dp2 = dp2 + p(i)*ax(i)
-         enddo
-         alpha = dp1/dp2
-
-         r_old(:) = r(:)
-
-         x(:) = x(:) + alpha*p(:)
-         r(:) = r(:) - alpha*ax(:)
-
-         ! size of resid
-         dp1 = 0.
-         do i=1,n
-          dp1 = dp1 + r(i)*r(i)
-         enddo
-         resid = sqrt(dp1)
-
-         ! beta_ii = r'r / p'Ap
-         dp1 = 0.
-         dp2 = 0.
-         do i=1,n
-          dp1 = dp1 + r(i)*r(i)
-          dp2 = dp2 + r_old(i)*r_old(i)
-         enddo
-         beta = dp1/dp2
-
-         p(:) = r(:) + beta * p(:)
-
-        endif
-        enddo
-
-
-       end subroutine conj_grad
