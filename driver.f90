@@ -7,7 +7,7 @@ real(8), dimension(n) :: bb, g_bb, adbb, bb0
 real(8), dimension(n+1) :: u, adu, g_u
 real(8) :: fc, fdfc, g_fc, adfc
 real(8) :: fc_0, fc_pert1, fc_pert2, accuracy, accuracyAD
-real(8), parameter :: ep = 1.d-5
+real(8), parameter :: ep = 1.d-4
 integer :: ii
 
 

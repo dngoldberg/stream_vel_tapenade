@@ -19,11 +19,6 @@ driver.o: driver.f90 stream_vel_variables.mod
 
 stream_vel_dan_b.o: stream_vel_dan_b.f90 stream_vel_variables.mod
 	$(F90) -c stream_vel_dan_b.f90
-conj_grad_adj.o: conj_grad_adj.f90 stream_vel_variables.mod
-	$(F90) -c conj_grad_adj.f90
-
-stream_vel_dan.o: stream_vel_dan.f90
-	$(F90) -c stream_vel_dan.f90
 
 stream_vel_variables.mod: stream_vel_dan.o
 

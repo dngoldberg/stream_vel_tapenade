@@ -16,8 +16,11 @@ SUBROUTINE CONJ_GRAD_B(x, xb, b, a, ab)
   REAL*8, DIMENSION(n, 3), INTENT(IN) :: a
   REAL*8, DIMENSION(n, 3) :: ab
   INTEGER :: i
-  REAL*8, DIMENSION(n) :: tau
+  REAL*8, DIMENSION(n) :: tau, x_orig
 
+  !  x(:) = 0.
+  x_orig(:) = x(:)
+  x(:) = 0.
   call CONJ_GRAD(x, b, a)
   call CONJ_GRAD(tau, xb, a)
 
@@ -31,7 +34,26 @@ SUBROUTINE CONJ_GRAD_B(x, xb, b, a, ab)
    endif
   enddo
   xb(:) = 0.
+
+  x(:) = x_orig(:)
+
+
 END SUBROUTINE CONJ_GRAD_B
 
 
 
+!-----------------------------
+        subroutine conj_grad_nodiff (x, b, A)
+!-----------------------------
+
+!       THIS IS THE LINEAR SYSTEM SOLVER
+
+        use stream_vel_variables
+
+        real(8), intent(inout), dimension(n) :: x
+        real(8), intent(in), dimension(n) :: b
+        real(8), intent(in), dimension(n,3) :: A
+
+        call conj_grad(x,b,A)
+
+END SUBROUTINE CONJ_GRAD_NODIFF

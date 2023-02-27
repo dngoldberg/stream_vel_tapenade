@@ -78,6 +78,7 @@ SUBROUTINE STREAM_VEL_B(u, bb, bbb, fc, fcb)
   uold = u
   CALL STREAM_VEL_VISC(h, u, nu)
 ! update viscosities
+  CALL PUSHREAL8ARRAY(a, 79*3)
   CALL STREAM_ASSEMBLE(nu, beta_fric, a)
 ! assemble tridiag matrix
 ! this represents discretization of
@@ -118,6 +119,7 @@ SUBROUTINE STREAM_VEL_B(u, bb, bbb, fc, fcb)
       ub(j+1) = 0.0_8
     END DO
     CALL CONJ_GRAD_B(utmp, utmpb, b, a, ab)
+    CALL POPREAL8ARRAY(a, 79*3)
     beta_fricb = 0.0_8
     CALL STREAM_ASSEMBLE_B(nu, nub, beta_fric, beta_fricb, a, ab)
     CALL STREAM_VEL_VISC_B(h, u, ub, nu, nub)
@@ -138,6 +140,7 @@ SUBROUTINE STREAM_VEL_B(u, bb, bbb, fc, fcb)
     ub(j+1) = 0.0_8
   END DO
   CALL CONJ_GRAD_B(utmp, utmpb, b, a, ab)
+  CALL POPREAL8ARRAY(a, 79*3)
   CALL STREAM_ASSEMBLE_B(nu, nub, beta_fric, beta_fricb, a, ab)
   ub = 0.0_8
   CALL STREAM_VEL_VISC_B(h, u, ub, nu, nub)

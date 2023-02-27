@@ -14,7 +14,9 @@
 
 
         do i=1,n
-          x(i) = x(i) + A(i,1) * b(i) + A(i,2) * b(i) + A(i,3) * b(i)
+          x(i) = x(i) + A(i,1)**2 * b(i)
+          x(i) = x(i) + A(i,2)**2 * b(i) 
+          x(i) = x(i) + A(i,3)**2 * b(i)
         enddo
        
         end subroutine conj_grad
