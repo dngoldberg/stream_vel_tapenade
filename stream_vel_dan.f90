@@ -103,6 +103,7 @@
          do j=1,n
           u(j+1) = utmp(j)                               ! effectively apply boundary condition u(1)==0
          enddo
+         u(1) = 0.
          sumdiff=0.
          do j=1,n
 !          u(j+1) = utmp(j)                ! effectively apply boundary condition u(1)==0
@@ -193,4 +194,5 @@
         enddo
                 
         end subroutine stream_assemble
+
 
