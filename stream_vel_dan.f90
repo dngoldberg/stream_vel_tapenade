@@ -89,7 +89,7 @@
         uold = u
 !-----------------------------------
 !        do i=1, n_nl
-!$AD FP-LOOP "u" %Accuracy 8.0e6
+!$AD FP-LOOP "u" adj_reduction=5.e-7
         do while (sumdiff .gt. 1.e-14)
          uold= u
          call stream_vel_visc (h, u, nu)                 ! update viscosities
